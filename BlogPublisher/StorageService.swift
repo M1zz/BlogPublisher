@@ -113,23 +113,58 @@ class StorageService {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
         let timestamp = dateFormatter.string(from: Date())
-        
+
         let backupDir = appSupportDirectory.appendingPathComponent("Backups", isDirectory: true)
         if !fileManager.fileExists(atPath: backupDir.path) {
             try fileManager.createDirectory(at: backupDir, withIntermediateDirectories: true)
         }
-        
+
         let backupFile = backupDir.appendingPathComponent("backup_\(timestamp).json")
-        
+
         let backupData: [String: Any] = [
             "projects": loadProjects(),
             "settings": loadSettings(),
             "timestamp": timestamp
         ]
-        
+
         let data = try JSONSerialization.data(withJSONObject: backupData, options: .prettyPrinted)
         try data.write(to: backupFile)
-        
+
         return backupFile
+    }
+
+    // MARK: - Resources
+    func loadMarkdownFilesFromResources() -> [URL] {
+        // Bundle의 Resources 폴더에서 직접 마크다운 파일 찾기
+        guard let resourcesPath = Bundle.main.resourcePath else {
+            print("❌ Bundle의 resourcePath를 찾을 수 없습니다")
+            return []
+        }
+
+        let resourcesURL = URL(fileURLWithPath: resourcesPath)
+        print("📂 Resources 경로: \(resourcesURL.path)")
+
+        do {
+            let contents = try fileManager.contentsOfDirectory(
+                at: resourcesURL,
+                includingPropertiesForKeys: [.contentModificationDateKey],
+                options: [.skipsHiddenFiles]
+            )
+
+            let markdownFiles = contents.filter { $0.pathExtension == "md" }
+                .sorted { url1, url2 in
+                    let date1 = (try? url1.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? Date.distantPast
+                    let date2 = (try? url2.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? Date.distantPast
+                    return date1 > date2 // 최신순
+                }
+
+            print("📝 발견한 마크다운 파일 (\(markdownFiles.count)개):")
+            markdownFiles.forEach { print("   - \($0.lastPathComponent)") }
+            return markdownFiles
+        } catch {
+            print("❌ 폴더 읽기 실패: \(error)")
+            print("시도한 경로: \(resourcesURL.path)")
+            return []
+        }
     }
 }

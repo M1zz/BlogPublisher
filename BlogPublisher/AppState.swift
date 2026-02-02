@@ -23,10 +23,15 @@ class AppState: ObservableObject {
     let claudeService = ClaudeService()
     let platformService = PlatformService()
     let storageService = StorageService()
+
+    // MARK: - File Monitoring
+    private var fileMonitorTimer: Timer?
+    private var lastCheckedFiles: [URL: Date] = [:]
     
     // MARK: - Initialization
     init() {
         loadData()
+        startFileMonitoring()
     }
     
     // MARK: - Data Management
@@ -242,6 +247,96 @@ class AppState: ObservableObject {
         guard var post = selectedPost else { return }
         post.content = content
         updatePost(post)
+    }
+
+    // MARK: - File Monitoring
+    func startFileMonitoring() {
+        // 2초마다 Resources 폴더 체크
+        fileMonitorTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.checkForFileChanges()
+            }
+        }
+    }
+
+    func stopFileMonitoring() {
+        fileMonitorTimer?.invalidate()
+        fileMonitorTimer = nil
+    }
+
+    private func checkForFileChanges() {
+        let markdownFiles = storageService.loadMarkdownFilesFromResources()
+        print("🔍 파일 체크 시작: \(markdownFiles.count)개 파일")
+
+        for fileURL in markdownFiles {
+            do {
+                let resourceValues = try fileURL.resourceValues(forKeys: [.contentModificationDateKey])
+                guard let modificationDate = resourceValues.contentModificationDate else { continue }
+
+                // 새 파일이거나 수정된 파일인 경우
+                if lastCheckedFiles[fileURL] == nil || lastCheckedFiles[fileURL]! < modificationDate {
+                    lastCheckedFiles[fileURL] = modificationDate
+
+                    // 파일 내용 읽기
+                    let content = try String(contentsOf: fileURL, encoding: .utf8)
+
+                    // 마크다운에서 제목 추출 (첫 번째 # 라인)
+                    let title = extractTitleFromMarkdown(content) ?? fileURL.deletingPathExtension().lastPathComponent
+
+                    print("📄 새 파일 발견/수정: \(fileURL.lastPathComponent) -> 제목: \(title)")
+
+                    // "개발 블로그" 프로젝트 찾기
+                    guard var project = projects.first(where: { $0.name == "개발 블로그" }) else {
+                        print("⚠️ '개발 블로그' 프로젝트를 찾을 수 없습니다")
+                        continue
+                    }
+
+                    // 같은 제목의 글이 이미 있는지 확인
+                    if let existingPostIndex = project.posts.firstIndex(where: { $0.title == title }) {
+                        // 기존 글 업데이트
+                        print("♻️ 기존 글 업데이트: \(title)")
+                        var existingPost = project.posts[existingPostIndex]
+                        existingPost.content = content
+                        existingPost.updatedAt = Date()
+                        project.posts[existingPostIndex] = existingPost
+                        updateProject(project)
+
+                        // 현재 선택된 글이면 업데이트
+                        if selectedPost?.id == existingPost.id {
+                            selectedPost = existingPost
+                        }
+                    } else {
+                        // 새 글 추가
+                        print("✨ 새 글 추가: \(title)")
+                        let newPost = Post(
+                            title: title,
+                            content: content,
+                            subtitle: "",
+                            tags: ["블로그"]
+                        )
+                        project.posts.insert(newPost, at: 0)
+                        updateProject(project)
+
+                        // 자동으로 새 글 선택
+                        selectedPost = newPost
+                    }
+                }
+            } catch {
+                print("❌ 파일 체크 실패 (\(fileURL.lastPathComponent)): \(error)")
+            }
+        }
+    }
+
+    // 마크다운에서 제목 추출
+    private func extractTitleFromMarkdown(_ content: String) -> String? {
+        let lines = content.components(separatedBy: .newlines)
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.hasPrefix("# ") {
+                return trimmed.replacingOccurrences(of: "# ", with: "")
+            }
+        }
+        return nil
     }
 
     // MARK: - Sample Content
