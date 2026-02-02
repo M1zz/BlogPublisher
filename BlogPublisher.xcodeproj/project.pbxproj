@@ -19,7 +19,7 @@
 		A1000001000000000000000A /* MainEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001000000000000000A /* MainEditorView.swift */; };
 		A1000001000000000000000B /* SheetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001000000000000000B /* SheetViews.swift */; };
 		A1000001000000000000000C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2000001000000000000000C /* Assets.xcassets */; };
-		A1000001000000000000000D /* SamplePost.md in Resources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000010 /* SamplePost.md */; };
+		A1000001000000000000000D /* Swift-Beginners-Guide-10-Lessons-Learned-from-the-Real-World.md in Resources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000010 /* Swift-Beginners-Guide-10-Lessons-Learned-from-the-Real-World.md */; };
 		A1000001000000000000000E /* NSTextView-Markdown-Rendering.md in Resources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000011 /* NSTextView-Markdown-Rendering.md */; };
 		A1000001000000000000000F /* Optional-Force-Unwrapping-History.md in Resources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000012 /* Optional-Force-Unwrapping-History.md */; };
 /* End PBXBuildFile section */
@@ -40,7 +40,7 @@
 		A2000001000000000000000D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A2000001000000000000000E /* BlogPublisher.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BlogPublisher.entitlements; sourceTree = "<group>"; };
 		A2000001000000000000000F /* BlogPublisher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlogPublisher.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A20000010000000000000010 /* SamplePost.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SamplePost.md; sourceTree = "<group>"; };
+		A20000010000000000000010 /* Swift-Beginners-Guide-10-Lessons-Learned-from-the-Real-World.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift-Beginners-Guide-10-Lessons-Learned-from-the-Real-World.md"; sourceTree = "<group>"; };
 		A20000010000000000000011 /* NSTextView-Markdown-Rendering.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "NSTextView-Markdown-Rendering.md"; sourceTree = "<group>"; };
 		A20000010000000000000012 /* Optional-Force-Unwrapping-History.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Optional-Force-Unwrapping-History.md"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -86,22 +86,22 @@
 			path = BlogPublisher;
 			sourceTree = "<group>";
 		};
-		A40000010000000000000004 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				A20000010000000000000010 /* SamplePost.md */,
-				A20000010000000000000011 /* NSTextView-Markdown-Rendering.md */,
-				A20000010000000000000012 /* Optional-Force-Unwrapping-History.md */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
 		A40000010000000000000003 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				A2000001000000000000000F /* BlogPublisher.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A40000010000000000000004 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000010 /* Swift-Beginners-Guide-10-Lessons-Learned-from-the-Real-World.md */,
+				A20000010000000000000011 /* NSTextView-Markdown-Rendering.md */,
+				A20000010000000000000012 /* Optional-Force-Unwrapping-History.md */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -164,7 +164,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1000001000000000000000C /* Assets.xcassets in Resources */,
-				A1000001000000000000000D /* SamplePost.md in Resources */,
+				A1000001000000000000000D /* Swift-Beginners-Guide-10-Lessons-Learned-from-the-Real-World.md in Resources */,
 				A1000001000000000000000E /* NSTextView-Markdown-Rendering.md in Resources */,
 				A1000001000000000000000F /* Optional-Force-Unwrapping-History.md in Resources */,
 			);
