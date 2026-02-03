@@ -323,12 +323,30 @@ class AppState: ObservableObject {
 
     // MARK: - File Monitoring
     func startFileMonitoring() {
+        // 앱 시작 시 기존 파일들의 수정 시간을 미리 등록 (중복 생성 방지)
+        initializeLastCheckedFiles()
+
         // 2초마다 Resources 폴더 체크
         fileMonitorTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 self?.checkForFileChanges()
             }
         }
+    }
+
+    private func initializeLastCheckedFiles() {
+        let markdownFiles = storageService.loadMarkdownFilesFromResources()
+        for fileURL in markdownFiles {
+            do {
+                let resourceValues = try fileURL.resourceValues(forKeys: [.contentModificationDateKey])
+                if let modificationDate = resourceValues.contentModificationDate {
+                    lastCheckedFiles[fileURL] = modificationDate
+                }
+            } catch {
+                print("⚠️ 파일 초기화 실패: \(fileURL.lastPathComponent)")
+            }
+        }
+        print("📁 파일 모니터링 초기화: \(lastCheckedFiles.count)개 파일 등록")
     }
 
     func stopFileMonitoring() {
