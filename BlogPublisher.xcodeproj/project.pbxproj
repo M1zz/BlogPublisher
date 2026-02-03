@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		58A871432F32307D0049764A /* GrowthFeaturesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A871402F32307D0049764A /* GrowthFeaturesView.swift */; };
+		58A871442F32307D0049764A /* ProductivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A871412F32307D0049764A /* ProductivityView.swift */; };
+		58A871452F32307D0049764A /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A871422F32307D0049764A /* TemplatesView.swift */; };
+		58A871462F32307D0049764A /* ContentToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A8713F2F32307D0049764A /* ContentToolsView.swift */; };
+		58A871482F3236B40049764A /* Xcode-Update-Hell.md in Resources */ = {isa = PBXBuildFile; fileRef = 58A871472F3236B40049764A /* Xcode-Update-Hell.md */; };
 		A10000010000000000000001 /* BlogPublisherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000001 /* BlogPublisherApp.swift */; };
 		A10000010000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000002 /* ContentView.swift */; };
 		A10000010000000000000003 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000003 /* Models.swift */; };
@@ -27,6 +32,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		58A8713F2F32307D0049764A /* ContentToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentToolsView.swift; sourceTree = "<group>"; };
+		58A871402F32307D0049764A /* GrowthFeaturesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthFeaturesView.swift; sourceTree = "<group>"; };
+		58A871412F32307D0049764A /* ProductivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductivityView.swift; sourceTree = "<group>"; };
+		58A871422F32307D0049764A /* TemplatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatesView.swift; sourceTree = "<group>"; };
+		58A871472F3236B40049764A /* Xcode-Update-Hell.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode-Update-Hell.md"; sourceTree = "<group>"; };
 		A20000010000000000000001 /* BlogPublisherApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlogPublisherApp.swift; sourceTree = "<group>"; };
 		A20000010000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A20000010000000000000003 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -71,6 +81,10 @@
 		A40000010000000000000002 /* BlogPublisher */ = {
 			isa = PBXGroup;
 			children = (
+				58A8713F2F32307D0049764A /* ContentToolsView.swift */,
+				58A871402F32307D0049764A /* GrowthFeaturesView.swift */,
+				58A871412F32307D0049764A /* ProductivityView.swift */,
+				58A871422F32307D0049764A /* TemplatesView.swift */,
 				A20000010000000000000001 /* BlogPublisherApp.swift */,
 				A20000010000000000000002 /* ContentView.swift */,
 				A20000010000000000000003 /* Models.swift */,
@@ -101,6 +115,7 @@
 		A40000010000000000000004 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				58A871472F3236B40049764A /* Xcode-Update-Hell.md */,
 				A20000010000000000000010 /* Swift-Beginners-Guide-10-Lessons-Learned-from-the-Real-World.md */,
 				A20000010000000000000011 /* NSTextView-Markdown-Rendering.md */,
 				A20000010000000000000012 /* Optional-Force-Unwrapping-History.md */,
@@ -175,6 +190,7 @@
 				A1000001000000000000000F /* Optional-Force-Unwrapping-History.md in Resources */,
 				A10000010000000000000010 /* Why-I-Started-Tech-Blog.md in Resources */,
 				A10000010000000000000011 /* Why-I-Started-Tech-Blog-EN.md in Resources */,
+				58A871482F3236B40049764A /* Xcode-Update-Hell.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -195,6 +211,10 @@
 				A10000010000000000000008 /* SidebarView.swift in Sources */,
 				A10000010000000000000009 /* PostListView.swift in Sources */,
 				A1000001000000000000000A /* MainEditorView.swift in Sources */,
+				58A871432F32307D0049764A /* GrowthFeaturesView.swift in Sources */,
+				58A871442F32307D0049764A /* ProductivityView.swift in Sources */,
+				58A871452F32307D0049764A /* TemplatesView.swift in Sources */,
+				58A871462F32307D0049764A /* ContentToolsView.swift in Sources */,
 				A1000001000000000000000B /* SheetViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
