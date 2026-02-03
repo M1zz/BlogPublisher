@@ -16,8 +16,15 @@ struct ContentView: View {
             }
 
             NavigationSplitView {
-                PostListView()
-                    .frame(minWidth: 260)
+                VStack(spacing: 0) {
+                    PostListView()
+
+                    Divider()
+
+                    // Growth Tools Section
+                    GrowthToolsBar()
+                }
+                .frame(minWidth: 260)
             } detail: {
                 if appState.selectedPost != nil {
                     MainEditorView()
@@ -41,6 +48,30 @@ struct ContentView: View {
             SettingsView()
                 .environmentObject(appState)
         }
+        .sheet(isPresented: $appState.showIdeasSheet) {
+            IdeasView()
+        }
+        .sheet(isPresented: $appState.showTemplatesSheet) {
+            TemplatesView()
+        }
+        .sheet(isPresented: $appState.showDashboardSheet) {
+            DashboardView()
+        }
+        .sheet(isPresented: $appState.showPomodoroSheet) {
+            PomodoroTimerView()
+        }
+        .sheet(isPresented: $appState.showSEOSheet) {
+            SEOAnalysisView()
+        }
+        .sheet(isPresented: $appState.showAITitleSheet) {
+            AITitleSuggestionsView()
+        }
+        .sheet(isPresented: $appState.showSeriesSheet) {
+            SeriesManagementView()
+        }
+        .sheet(isPresented: $appState.showScheduleSheet) {
+            SchedulePublishView()
+        }
         .alert("오류", isPresented: .init(
             get: { appState.errorMessage != nil },
             set: { if !$0 { appState.errorMessage = nil } }
@@ -51,6 +82,61 @@ struct ContentView: View {
         } message: {
             Text(appState.errorMessage ?? "")
         }
+    }
+}
+
+// MARK: - Growth Tools Bar
+struct GrowthToolsBar: View {
+    @EnvironmentObject var appState: AppState
+
+    var body: some View {
+        VStack(spacing: 8) {
+            // Streak Display
+            MiniStreakView()
+
+            // Tool Buttons
+            HStack(spacing: 4) {
+                ToolButton(icon: "lightbulb.fill", label: "아이디어", color: .yellow) {
+                    appState.showIdeasSheet = true
+                }
+                ToolButton(icon: "doc.text.fill", label: "템플릿", color: .blue) {
+                    appState.showTemplatesSheet = true
+                }
+                ToolButton(icon: "chart.bar.fill", label: "대시보드", color: .green) {
+                    appState.showDashboardSheet = true
+                }
+                ToolButton(icon: "timer", label: "포모도로", color: .red) {
+                    appState.showPomodoroSheet = true
+                }
+            }
+        }
+        .padding(8)
+        .background(Color(nsColor: .windowBackgroundColor))
+    }
+}
+
+struct ToolButton: View {
+    let icon: String
+    let label: String
+    let color: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: icon)
+                    .foregroundStyle(color)
+                    .font(.title3)
+                Text(label)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .background(Color(nsColor: .controlBackgroundColor))
+            .cornerRadius(8)
+        }
+        .buttonStyle(.plain)
     }
 }
 

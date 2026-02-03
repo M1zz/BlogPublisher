@@ -18,7 +18,35 @@ class AppState: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var publishResults: [PublishResult] = []
-    
+
+    // MARK: - Filter State
+    @Published var selectedTags: Set<String> = []
+    @Published var selectedCategory: PostCategory?
+    @Published var selectedPlatformFilter: String?
+
+    // MARK: - Growth Features State
+    @Published var ideas: [Idea] = []
+    @Published var templates: [PostTemplate] = []
+    @Published var series: [Series] = []
+    @Published var writingStats: WritingStats = WritingStats()
+    @Published var scheduledPublishes: [ScheduledPublish] = []
+
+    // MARK: - UI State for New Features
+    @Published var showIdeasSheet = false
+    @Published var showTemplatesSheet = false
+    @Published var showDashboardSheet = false
+    @Published var showPomodoroSheet = false
+    @Published var showSEOSheet = false
+    @Published var showAITitleSheet = false
+    @Published var showSeriesSheet = false
+    @Published var showScheduleSheet = false
+
+    // MARK: - Pomodoro State
+    @Published var pomodoroTimeRemaining: Int = 25 * 60
+    @Published var pomodoroIsRunning = false
+    @Published var pomodoroSessionCount = 0
+    private var pomodoroTimer: Timer?
+
     // MARK: - Services
     let claudeService = ClaudeService()
     let platformService = PlatformService()
@@ -38,6 +66,11 @@ class AppState: ObservableObject {
     func loadData() {
         projects = storageService.loadProjects()
         settings = storageService.loadSettings()
+        ideas = storageService.loadIdeas()
+        series = storageService.loadSeries()
+        writingStats = storageService.loadWritingStats()
+        scheduledPublishes = storageService.loadScheduledPublishes()
+        loadTemplates()
         Task { await claudeService.setApiKey(settings.claudeApiKey) }
 
         // 기본 프로젝트가 없으면 생성
@@ -150,13 +183,49 @@ class AppState: ObservableObject {
     
     func deletePost(_ post: Post) {
         guard var project = selectedProject else { return }
-        
+
         project.posts.removeAll { $0.id == post.id }
         updateProject(project)
-        
+
         if selectedPost?.id == post.id {
             selectedPost = project.posts.first
         }
+    }
+
+    func importMarkdownFile(from url: URL) {
+        do {
+            let post = try storageService.importPost(from: url)
+
+            guard var project = selectedProject else { return }
+            project.posts.insert(post, at: 0)
+            updateProject(project)
+            selectedPost = post
+        } catch {
+            errorMessage = "파일을 불러올 수 없습니다: \(error.localizedDescription)"
+        }
+    }
+
+    // MARK: - Tag Management
+    func allTags() -> [String] {
+        guard let project = selectedProject else { return [] }
+
+        var tags = Set<String>()
+        for post in project.posts {
+            tags.formUnion(post.tags)
+        }
+        return tags.sorted()
+    }
+
+    func toggleTagFilter(_ tag: String) {
+        if selectedTags.contains(tag) {
+            selectedTags.remove(tag)
+        } else {
+            selectedTags.insert(tag)
+        }
+    }
+
+    func clearTagFilters() {
+        selectedTags.removeAll()
     }
     
     // MARK: - Platform Actions
@@ -208,6 +277,9 @@ class AppState: ObservableObject {
                 }
                 updatedPost.status = .published
                 updatePost(updatedPost)
+
+                // Record stats for streak tracking
+                recordPublish(postId: post.id, platform: platform.platformType.rawValue)
             }
         }
         
@@ -337,6 +409,481 @@ class AppState: ObservableObject {
             }
         }
         return nil
+    }
+
+    // MARK: - Idea Actions
+    func createIdea(title: String, description: String = "", tags: [String] = [], priority: IdeaPriority = .medium) {
+        let idea = Idea(title: title, description: description, tags: tags, priority: priority)
+        ideas.insert(idea, at: 0)
+        saveIdeas()
+    }
+
+    func updateIdea(_ idea: Idea) {
+        if let index = ideas.firstIndex(where: { $0.id == idea.id }) {
+            var updated = idea
+            updated.updatedAt = Date()
+            ideas[index] = updated
+            saveIdeas()
+        }
+    }
+
+    func deleteIdea(_ idea: Idea) {
+        ideas.removeAll { $0.id == idea.id }
+        saveIdeas()
+    }
+
+    func convertIdeaToPost(_ idea: Idea) {
+        guard var project = selectedProject else { return }
+
+        let post = Post(
+            title: idea.title,
+            content: idea.description,
+            tags: idea.tags
+        )
+        project.posts.insert(post, at: 0)
+        updateProject(project)
+        selectedPost = post
+
+        // 아이디어 상태 업데이트
+        var updatedIdea = idea
+        updatedIdea.status = .completed
+        updateIdea(updatedIdea)
+    }
+
+    func saveIdeas() {
+        storageService.saveIdeas(ideas)
+    }
+
+    // MARK: - Template Actions
+    func loadTemplates() {
+        var loadedTemplates = storageService.loadTemplates()
+
+        // 기본 템플릿이 없으면 추가
+        let builtInIds = Set(PostTemplate.builtInTemplates.map { $0.name })
+        let existingBuiltIns = Set(loadedTemplates.filter { $0.isBuiltIn }.map { $0.name })
+
+        for builtIn in PostTemplate.builtInTemplates {
+            if !existingBuiltIns.contains(builtIn.name) {
+                loadedTemplates.append(builtIn)
+            }
+        }
+
+        templates = loadedTemplates
+        saveTemplates()
+    }
+
+    func createTemplate(name: String, description: String, content: String, category: PostCategory, tags: [String]) {
+        let template = PostTemplate(
+            name: name,
+            description: description,
+            content: content,
+            category: category,
+            tags: tags
+        )
+        templates.append(template)
+        saveTemplates()
+    }
+
+    func updateTemplate(_ template: PostTemplate) {
+        if let index = templates.firstIndex(where: { $0.id == template.id }) {
+            templates[index] = template
+            saveTemplates()
+        }
+    }
+
+    func deleteTemplate(_ template: PostTemplate) {
+        // 빌트인 템플릿은 삭제 불가
+        guard !template.isBuiltIn else { return }
+        templates.removeAll { $0.id == template.id }
+        saveTemplates()
+    }
+
+    func createPostFromTemplate(_ template: PostTemplate) {
+        guard var project = selectedProject else { return }
+
+        let post = Post(
+            title: template.name,
+            content: template.content,
+            tags: template.tags,
+            category: template.category
+        )
+        project.posts.insert(post, at: 0)
+        updateProject(project)
+        selectedPost = post
+    }
+
+    func saveTemplates() {
+        storageService.saveTemplates(templates)
+    }
+
+    // MARK: - Series Actions
+    func createSeries(name: String, description: String) {
+        let newSeries = Series(name: name, description: description)
+        series.append(newSeries)
+        saveSeries()
+    }
+
+    func addPostToSeries(_ post: Post, series: inout Series) {
+        if !series.postIds.contains(post.id) {
+            series.postIds.append(post.id)
+            updateSeries(series)
+        }
+    }
+
+    func removePostFromSeries(_ post: Post, series: inout Series) {
+        series.postIds.removeAll { $0 == post.id }
+        updateSeries(series)
+    }
+
+    func updateSeries(_ updatedSeries: Series) {
+        if let index = series.firstIndex(where: { $0.id == updatedSeries.id }) {
+            var s = updatedSeries
+            s.updatedAt = Date()
+            series[index] = s
+            saveSeries()
+        }
+    }
+
+    func deleteSeries(_ s: Series) {
+        series.removeAll { $0.id == s.id }
+        saveSeries()
+    }
+
+    func saveSeries() {
+        storageService.saveSeries(series)
+    }
+
+    // MARK: - Writing Stats Actions
+    func recordPublish(postId: UUID, platform: String) {
+        writingStats.recordPublish(postId: postId, platform: platform)
+        saveWritingStats()
+    }
+
+    func saveWritingStats() {
+        storageService.saveWritingStats(writingStats)
+    }
+
+    // MARK: - Schedule Actions
+    func schedulePublish(postId: UUID, platformIds: [UUID], at date: Date) {
+        let schedule = ScheduledPublish(postId: postId, platformIds: platformIds, scheduledAt: date)
+        scheduledPublishes.append(schedule)
+        saveSchedules()
+    }
+
+    func cancelSchedule(_ schedule: ScheduledPublish) {
+        if let index = scheduledPublishes.firstIndex(where: { $0.id == schedule.id }) {
+            scheduledPublishes[index].status = .cancelled
+            saveSchedules()
+        }
+    }
+
+    func saveSchedules() {
+        storageService.saveScheduledPublishes(scheduledPublishes)
+    }
+
+    // MARK: - Pomodoro Timer
+    func startPomodoro(minutes: Int = 25) {
+        pomodoroTimeRemaining = minutes * 60
+        pomodoroIsRunning = true
+        pomodoroTimer?.invalidate()
+        pomodoroTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self = self else { return }
+                if self.pomodoroTimeRemaining > 0 {
+                    self.pomodoroTimeRemaining -= 1
+                } else {
+                    self.pomodoroCompleted()
+                }
+            }
+        }
+    }
+
+    func pausePomodoro() {
+        pomodoroIsRunning = false
+        pomodoroTimer?.invalidate()
+    }
+
+    func resetPomodoro() {
+        pomodoroIsRunning = false
+        pomodoroTimer?.invalidate()
+        pomodoroTimeRemaining = 25 * 60
+    }
+
+    private func pomodoroCompleted() {
+        pomodoroIsRunning = false
+        pomodoroTimer?.invalidate()
+        pomodoroSessionCount += 1
+        // TODO: 알림 표시
+    }
+
+    // MARK: - SEO & Readability Analysis
+    func analyzeSEO(for post: Post, keyword: String) -> SEOAnalysis {
+        let content = post.content
+        let title = post.title
+
+        // 제목 분석
+        let titleLength = title.count
+        let titleHasKeyword = title.localizedCaseInsensitiveContains(keyword)
+        var titleScore = 0
+        var titleFeedback = ""
+
+        if titleLength >= 30 && titleLength <= 60 {
+            titleScore = 100
+            titleFeedback = "제목 길이가 적절합니다."
+        } else if titleLength < 30 {
+            titleScore = 60
+            titleFeedback = "제목이 너무 짧습니다. 30-60자를 권장합니다."
+        } else {
+            titleScore = 70
+            titleFeedback = "제목이 너무 깁니다. 60자 이내를 권장합니다."
+        }
+
+        if titleHasKeyword {
+            titleScore = min(100, titleScore + 20)
+        } else {
+            titleScore = max(0, titleScore - 20)
+            titleFeedback += " 제목에 키워드를 포함하세요."
+        }
+
+        // 콘텐츠 분석
+        let words = content.split(separator: " ")
+        let wordCount = words.count
+        let paragraphs = content.components(separatedBy: "\n\n")
+        let paragraphCount = paragraphs.count
+        let hasHeadings = content.contains("## ") || content.contains("### ")
+        let hasImages = content.contains("![")
+        let readingTime = wordCount / 200 // 분당 200단어 기준
+
+        var contentScore = 0
+        var contentFeedback = ""
+
+        if wordCount >= 300 {
+            contentScore = 80
+            contentFeedback = "콘텐츠 길이가 적절합니다."
+        } else {
+            contentScore = 50
+            contentFeedback = "콘텐츠가 짧습니다. 300단어 이상을 권장합니다."
+        }
+
+        if hasHeadings { contentScore += 10 }
+        if hasImages { contentScore += 10 }
+
+        // 키워드 분석
+        let keywordCount = content.lowercased().components(separatedBy: keyword.lowercased()).count - 1
+        let density = wordCount > 0 ? Double(keywordCount) / Double(wordCount) * 100 : 0
+
+        var keywordScore = 0
+        var keywordFeedback = ""
+
+        if density >= 1.0 && density <= 3.0 {
+            keywordScore = 100
+            keywordFeedback = "키워드 밀도가 적절합니다."
+        } else if density < 1.0 {
+            keywordScore = 60
+            keywordFeedback = "키워드 사용이 부족합니다. 1-3%를 권장합니다."
+        } else {
+            keywordScore = 50
+            keywordFeedback = "키워드 과다 사용입니다. 자연스러운 문장을 유지하세요."
+        }
+
+        // 종합 점수
+        let totalScore = (titleScore + contentScore + keywordScore) / 3
+
+        // 제안
+        var suggestions: [String] = []
+        if !titleHasKeyword { suggestions.append("제목에 '\(keyword)' 키워드를 포함하세요.") }
+        if wordCount < 300 { suggestions.append("콘텐츠를 300단어 이상으로 확장하세요.") }
+        if !hasHeadings { suggestions.append("## 또는 ### 제목을 추가하여 구조화하세요.") }
+        if !hasImages { suggestions.append("이미지를 추가하여 가독성을 높이세요.") }
+        if density < 1.0 { suggestions.append("'\(keyword)' 키워드를 더 자연스럽게 사용하세요.") }
+
+        return SEOAnalysis(
+            score: totalScore,
+            titleScore: SEOAnalysis.TitleAnalysis(
+                length: titleLength,
+                hasKeyword: titleHasKeyword,
+                score: titleScore,
+                feedback: titleFeedback
+            ),
+            contentScore: SEOAnalysis.ContentAnalysis(
+                wordCount: wordCount,
+                paragraphCount: paragraphCount,
+                hasHeadings: hasHeadings,
+                hasImages: hasImages,
+                readingTime: readingTime,
+                score: contentScore,
+                feedback: contentFeedback
+            ),
+            keywordScore: SEOAnalysis.KeywordAnalysis(
+                keyword: keyword,
+                density: density,
+                count: keywordCount,
+                score: keywordScore,
+                feedback: keywordFeedback
+            ),
+            suggestions: suggestions
+        )
+    }
+
+    func analyzeReadability(for post: Post) -> ReadabilityAnalysis {
+        let content = post.content
+
+        // 문장 분리
+        let sentences = content.components(separatedBy: CharacterSet(charactersIn: ".!?"))
+            .filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+
+        // 단락 분리
+        let paragraphs = content.components(separatedBy: "\n\n")
+            .filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+
+        // 평균 문장 길이
+        let totalSentenceWords = sentences.reduce(0) { $0 + $1.split(separator: " ").count }
+        let avgSentenceLength = sentences.isEmpty ? 0 : Double(totalSentenceWords) / Double(sentences.count)
+
+        // 평균 단락 길이
+        let totalParagraphSentences = paragraphs.reduce(0) { count, para in
+            count + para.components(separatedBy: CharacterSet(charactersIn: ".!?")).filter { !$0.isEmpty }.count
+        }
+        let avgParagraphLength = paragraphs.isEmpty ? 0 : Double(totalParagraphSentences) / Double(paragraphs.count)
+
+        // 복잡한 문장 수 (20단어 이상)
+        let complexSentences = sentences.filter { $0.split(separator: " ").count > 20 }.count
+
+        // 점수 계산
+        var score = 100
+
+        if avgSentenceLength > 25 {
+            score -= 20
+        } else if avgSentenceLength > 20 {
+            score -= 10
+        }
+
+        if complexSentences > sentences.count / 3 {
+            score -= 15
+        }
+
+        // 등급 결정
+        let grade: ReadabilityGrade
+        if score >= 80 {
+            grade = .easy
+        } else if score >= 60 {
+            grade = .medium
+        } else {
+            grade = .hard
+        }
+
+        // 제안
+        var suggestions: [String] = []
+        if avgSentenceLength > 20 {
+            suggestions.append("문장을 더 짧게 나누세요. (평균 15-20단어 권장)")
+        }
+        if complexSentences > 0 {
+            suggestions.append("\(complexSentences)개의 긴 문장을 단순화하세요.")
+        }
+        if avgParagraphLength > 5 {
+            suggestions.append("단락을 더 짧게 나누세요. (3-5문장 권장)")
+        }
+
+        return ReadabilityAnalysis(
+            score: score,
+            grade: grade,
+            avgSentenceLength: avgSentenceLength,
+            avgParagraphLength: avgParagraphLength,
+            complexSentences: complexSentences,
+            suggestions: suggestions
+        )
+    }
+
+    // MARK: - AI Title Suggestions
+    func generateTitleSuggestions(for post: Post) async throws -> [String] {
+        guard !settings.claudeApiKey.isEmpty else {
+            throw ClaudeError.missingAPIKey
+        }
+
+        let prompt = """
+        다음 블로그 글의 내용을 바탕으로 클릭율이 높은 제목 5개를 제안해주세요.
+
+        글 내용:
+        \(post.content.prefix(2000))
+
+        규칙:
+        1. 각 제목은 새 줄에 작성
+        2. 숫자나 목록 기호 없이 제목만 작성
+        3. 40-60자 사이로 작성
+        4. 호기심을 자극하거나 가치를 명확히 전달
+        5. 한국어로 작성
+        """
+
+        let response = try await claudeService.sendMessage(prompt, context: "", history: [])
+
+        let titles = response.components(separatedBy: "\n")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty && !$0.hasPrefix("-") && !$0.hasPrefix("*") }
+            .prefix(5)
+
+        return Array(titles)
+    }
+
+    // MARK: - Thread/Social Media Conversion
+    func convertToTwitterThread(post: Post, maxLength: Int = 280) -> [String] {
+        let content = post.content
+
+        // 마크다운 문법 제거
+        var cleanContent = content
+            .replacingOccurrences(of: "```[\\s\\S]*?```", with: "[코드]", options: .regularExpression)
+            .replacingOccurrences(of: "#+ ", with: "", options: .regularExpression)
+            .replacingOccurrences(of: "\\*\\*([^*]+)\\*\\*", with: "$1", options: .regularExpression)
+            .replacingOccurrences(of: "\\*([^*]+)\\*", with: "$1", options: .regularExpression)
+            .replacingOccurrences(of: "\\[([^\\]]+)\\]\\([^)]+\\)", with: "$1", options: .regularExpression)
+
+        var threads: [String] = []
+
+        // 첫 번째 스레드: 제목 + 인트로
+        threads.append("[\(post.title)]\n\n스레드로 정리합니다.")
+
+        // 단락별로 분리
+        let paragraphs = cleanContent.components(separatedBy: "\n\n")
+            .filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+
+        var currentThread = ""
+        for para in paragraphs {
+            let trimmed = para.trimmingCharacters(in: .whitespaces)
+            if currentThread.count + trimmed.count + 2 <= maxLength - 10 { // 여유 공간
+                currentThread += (currentThread.isEmpty ? "" : "\n\n") + trimmed
+            } else {
+                if !currentThread.isEmpty {
+                    threads.append(currentThread)
+                }
+                // 너무 긴 단락은 분할
+                if trimmed.count > maxLength - 10 {
+                    let words = trimmed.split(separator: " ")
+                    var chunk = ""
+                    for word in words {
+                        if chunk.count + word.count + 1 <= maxLength - 10 {
+                            chunk += (chunk.isEmpty ? "" : " ") + word
+                        } else {
+                            threads.append(chunk)
+                            chunk = String(word)
+                        }
+                    }
+                    currentThread = chunk
+                } else {
+                    currentThread = trimmed
+                }
+            }
+        }
+
+        if !currentThread.isEmpty {
+            threads.append(currentThread)
+        }
+
+        // 마지막 스레드: CTA
+        threads.append("전체 글은 블로그에서 확인하세요!")
+
+        // 번호 추가
+        return threads.enumerated().map { index, thread in
+            "\(index + 1)/\(threads.count)\n\n\(thread)"
+        }
     }
 
     // MARK: - Sample Content

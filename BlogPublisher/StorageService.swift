@@ -21,6 +21,26 @@ class StorageService {
     private var settingsFile: URL {
         appSupportDirectory.appendingPathComponent("settings.json")
     }
+
+    private var ideasFile: URL {
+        appSupportDirectory.appendingPathComponent("ideas.json")
+    }
+
+    private var templatesFile: URL {
+        appSupportDirectory.appendingPathComponent("templates.json")
+    }
+
+    private var seriesFile: URL {
+        appSupportDirectory.appendingPathComponent("series.json")
+    }
+
+    private var statsFile: URL {
+        appSupportDirectory.appendingPathComponent("stats.json")
+    }
+
+    private var schedulesFile: URL {
+        appSupportDirectory.appendingPathComponent("schedules.json")
+    }
     
     // MARK: - Projects
     func loadProjects() -> [Project] {
@@ -52,6 +72,81 @@ class StorageService {
         try? data.write(to: settingsFile)
     }
     
+    // MARK: - Ideas
+    func loadIdeas() -> [Idea] {
+        guard fileManager.fileExists(atPath: ideasFile.path),
+              let data = try? Data(contentsOf: ideasFile),
+              let ideas = try? JSONDecoder().decode([Idea].self, from: data) else {
+            return []
+        }
+        return ideas
+    }
+
+    func saveIdeas(_ ideas: [Idea]) {
+        guard let data = try? JSONEncoder().encode(ideas) else { return }
+        try? data.write(to: ideasFile)
+    }
+
+    // MARK: - Templates
+    func loadTemplates() -> [PostTemplate] {
+        guard fileManager.fileExists(atPath: templatesFile.path),
+              let data = try? Data(contentsOf: templatesFile),
+              let templates = try? JSONDecoder().decode([PostTemplate].self, from: data) else {
+            return []
+        }
+        return templates
+    }
+
+    func saveTemplates(_ templates: [PostTemplate]) {
+        guard let data = try? JSONEncoder().encode(templates) else { return }
+        try? data.write(to: templatesFile)
+    }
+
+    // MARK: - Series
+    func loadSeries() -> [Series] {
+        guard fileManager.fileExists(atPath: seriesFile.path),
+              let data = try? Data(contentsOf: seriesFile),
+              let series = try? JSONDecoder().decode([Series].self, from: data) else {
+            return []
+        }
+        return series
+    }
+
+    func saveSeries(_ series: [Series]) {
+        guard let data = try? JSONEncoder().encode(series) else { return }
+        try? data.write(to: seriesFile)
+    }
+
+    // MARK: - Writing Stats
+    func loadWritingStats() -> WritingStats {
+        guard fileManager.fileExists(atPath: statsFile.path),
+              let data = try? Data(contentsOf: statsFile),
+              let stats = try? JSONDecoder().decode(WritingStats.self, from: data) else {
+            return WritingStats()
+        }
+        return stats
+    }
+
+    func saveWritingStats(_ stats: WritingStats) {
+        guard let data = try? JSONEncoder().encode(stats) else { return }
+        try? data.write(to: statsFile)
+    }
+
+    // MARK: - Scheduled Publishes
+    func loadScheduledPublishes() -> [ScheduledPublish] {
+        guard fileManager.fileExists(atPath: schedulesFile.path),
+              let data = try? Data(contentsOf: schedulesFile),
+              let schedules = try? JSONDecoder().decode([ScheduledPublish].self, from: data) else {
+            return []
+        }
+        return schedules
+    }
+
+    func saveScheduledPublishes(_ schedules: [ScheduledPublish]) {
+        guard let data = try? JSONEncoder().encode(schedules) else { return }
+        try? data.write(to: schedulesFile)
+    }
+
     // MARK: - Export/Import
     func exportPost(_ post: Post, to url: URL) throws {
         let markdown = """

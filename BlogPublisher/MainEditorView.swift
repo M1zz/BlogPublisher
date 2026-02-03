@@ -8,6 +8,40 @@ struct MainEditorView: View {
         EditorPanel()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .toolbar {
+                // Content Tools
+                ToolbarItemGroup(placement: .automatic) {
+                    Menu {
+                        Button {
+                            appState.showAITitleSheet = true
+                        } label: {
+                            Label("AI 제목 추천", systemImage: "sparkles")
+                        }
+
+                        Button {
+                            appState.showSEOSheet = true
+                        } label: {
+                            Label("SEO 분석", systemImage: "magnifyingglass.circle")
+                        }
+
+                        Divider()
+
+                        Button {
+                            appState.showSeriesSheet = true
+                        } label: {
+                            Label("시리즈 관리", systemImage: "books.vertical")
+                        }
+
+                        Button {
+                            appState.showScheduleSheet = true
+                        } label: {
+                            Label("발행 예약", systemImage: "calendar.badge.clock")
+                        }
+                    } label: {
+                        Label("도구", systemImage: "wand.and.stars")
+                    }
+                    .help("콘텐츠 도구")
+                }
+
                 ToolbarItemGroup(placement: .primaryAction) {
                     Button {
                         appState.showPublishSheet = true

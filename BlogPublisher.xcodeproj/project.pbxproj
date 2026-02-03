@@ -22,6 +22,8 @@
 		A1000001000000000000000D /* Swift-Beginners-Guide-10-Lessons-Learned-from-the-Real-World.md in Resources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000010 /* Swift-Beginners-Guide-10-Lessons-Learned-from-the-Real-World.md */; };
 		A1000001000000000000000E /* NSTextView-Markdown-Rendering.md in Resources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000011 /* NSTextView-Markdown-Rendering.md */; };
 		A1000001000000000000000F /* Optional-Force-Unwrapping-History.md in Resources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000012 /* Optional-Force-Unwrapping-History.md */; };
+		A10000010000000000000010 /* Why-I-Started-Tech-Blog.md in Resources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000013 /* Why-I-Started-Tech-Blog.md */; };
+		A10000010000000000000011 /* Why-I-Started-Tech-Blog-EN.md in Resources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000014 /* Why-I-Started-Tech-Blog-EN.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +45,8 @@
 		A20000010000000000000010 /* Swift-Beginners-Guide-10-Lessons-Learned-from-the-Real-World.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift-Beginners-Guide-10-Lessons-Learned-from-the-Real-World.md"; sourceTree = "<group>"; };
 		A20000010000000000000011 /* NSTextView-Markdown-Rendering.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "NSTextView-Markdown-Rendering.md"; sourceTree = "<group>"; };
 		A20000010000000000000012 /* Optional-Force-Unwrapping-History.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Optional-Force-Unwrapping-History.md"; sourceTree = "<group>"; };
+		A20000010000000000000013 /* Why-I-Started-Tech-Blog.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Why-I-Started-Tech-Blog.md"; sourceTree = "<group>"; };
+		A20000010000000000000014 /* Why-I-Started-Tech-Blog-EN.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Why-I-Started-Tech-Blog-EN.md"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +104,8 @@
 				A20000010000000000000010 /* Swift-Beginners-Guide-10-Lessons-Learned-from-the-Real-World.md */,
 				A20000010000000000000011 /* NSTextView-Markdown-Rendering.md */,
 				A20000010000000000000012 /* Optional-Force-Unwrapping-History.md */,
+				A20000010000000000000013 /* Why-I-Started-Tech-Blog.md */,
+				A20000010000000000000014 /* Why-I-Started-Tech-Blog-EN.md */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -167,6 +173,8 @@
 				A1000001000000000000000D /* Swift-Beginners-Guide-10-Lessons-Learned-from-the-Real-World.md in Resources */,
 				A1000001000000000000000E /* NSTextView-Markdown-Rendering.md in Resources */,
 				A1000001000000000000000F /* Optional-Force-Unwrapping-History.md in Resources */,
+				A10000010000000000000010 /* Why-I-Started-Tech-Blog.md in Resources */,
+				A10000010000000000000011 /* Why-I-Started-Tech-Blog-EN.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

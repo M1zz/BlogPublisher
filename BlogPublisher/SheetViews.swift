@@ -401,10 +401,13 @@ struct AddPlatformForm: View {
 struct PublishSheet: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) var dismiss
-    
+
     @State private var selectedPlatforms: Set<UUID> = []
     @State private var isPublishing = false
-    
+    @State private var seoTitle = ""
+    @State private var seoDescription = ""
+    @State private var showSeoSection = false
+
     var body: some View {
         VStack(spacing: 0) {
             // Header
@@ -416,33 +419,105 @@ struct PublishSheet: View {
                     .buttonStyle(.plain)
             }
             .padding()
-            
+
             Divider()
-            
-            if let post = appState.selectedPost {
-                // Post preview
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(post.title)
-                        .font(.headline)
-                    
-                    if !post.subtitle.isEmpty {
-                        Text(post.subtitle)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    
-                    HStack {
-                        ForEach(post.tags, id: \.self) { tag in
-                            Text("#\(tag)")
+
+            ScrollView {
+                VStack(spacing: 16) {
+                    if let post = appState.selectedPost {
+                        // Post preview
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(post.title)
+                                .font(.headline)
+
+                            if !post.subtitle.isEmpty {
+                                Text(post.subtitle)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            HStack {
+                                // 카테고리
+                                HStack(spacing: 4) {
+                                    Image(systemName: post.category.icon)
+                                    Text(post.category.rawValue)
+                                }
                                 .font(.caption)
-                                .foregroundStyle(.blue)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(post.category.color.opacity(0.2))
+                                .foregroundStyle(post.category.color)
+                                .cornerRadius(4)
+
+                                // 태그
+                                ForEach(post.tags, id: \.self) { tag in
+                                    Text("#\(tag)")
+                                        .font(.caption)
+                                        .foregroundStyle(.blue)
+                                }
+                            }
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color(nsColor: .controlBackgroundColor))
+                        .cornerRadius(8)
+
+                        // SEO Settings
+                        VStack(alignment: .leading, spacing: 12) {
+                            Button {
+                                withAnimation { showSeoSection.toggle() }
+                            } label: {
+                                HStack {
+                                    Image(systemName: "magnifyingglass")
+                                    Text("SEO 설정")
+                                        .font(.headline)
+                                    Spacer()
+                                    Image(systemName: showSeoSection ? "chevron.up" : "chevron.down")
+                                        .font(.caption)
+                                }
+                                .foregroundColor(.primary)
+                            }
+                            .buttonStyle(.plain)
+
+                            if showSeoSection {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("SEO 제목")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                        TextField("검색 결과에 표시될 제목", text: $seoTitle)
+                                            .textFieldStyle(.roundedBorder)
+                                        Text("\(seoTitle.count)/60자")
+                                            .font(.caption2)
+                                            .foregroundStyle(seoTitle.count > 60 ? .red : .secondary)
+                                    }
+
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("SEO 설명")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                        TextField("검색 결과에 표시될 설명", text: $seoDescription, axis: .vertical)
+                                            .textFieldStyle(.roundedBorder)
+                                            .lineLimit(3...5)
+                                        Text("\(seoDescription.count)/160자")
+                                            .font(.caption2)
+                                            .foregroundStyle(seoDescription.count > 160 ? .red : .secondary)
+                                    }
+
+                                    Button("글 제목/부제목으로 채우기") {
+                                        seoTitle = post.title
+                                        seoDescription = post.subtitle.isEmpty ? String(post.content.prefix(160)) : post.subtitle
+                                    }
+                                    .font(.caption)
+                                    .buttonStyle(.link)
+                                }
+                                .padding()
+                                .background(Color(nsColor: .controlBackgroundColor))
+                                .cornerRadius(8)
+                            }
                         }
                     }
                 }
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(nsColor: .controlBackgroundColor))
-                .cornerRadius(8)
                 .padding()
             }
             
@@ -534,17 +609,36 @@ struct PublishSheet: View {
             }
             .padding()
         }
-        .frame(width: 500, height: 600)
+        .frame(width: 500, height: 650)
+        .onAppear {
+            if let post = appState.selectedPost {
+                seoTitle = post.seoTitle
+                seoDescription = post.seoDescription
+            }
+        }
     }
-    
+
     private func publish() {
         guard let project = appState.selectedProject,
-              let post = appState.selectedPost else { return }
-        
+              var post = appState.selectedPost else { return }
+
+        // SEO 정보 저장
+        if !seoTitle.isEmpty || !seoDescription.isEmpty {
+            post.seoTitle = seoTitle
+            post.seoDescription = seoDescription
+            appState.updatePost(post)
+        }
+
         let platformsToPublish = project.platforms.filter { selectedPlatforms.contains($0.id) }
-        
+
         Task {
             await appState.publishPost(post, to: platformsToPublish)
+
+            // 발행 완료 후 1.5초 뒤에 자동으로 닫기
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            await MainActor.run {
+                dismiss()
+            }
         }
     }
 }
