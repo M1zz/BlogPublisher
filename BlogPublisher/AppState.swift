@@ -357,25 +357,33 @@ class AppState: ObservableObject {
 
                     print("📄 새 파일 발견/수정: \(fileURL.lastPathComponent) -> 제목: \(title)")
 
-                    // "개발 블로그" 프로젝트 찾기
-                    guard var project = projects.first(where: { $0.name == "개발 블로그" }) else {
-                        print("⚠️ '개발 블로그' 프로젝트를 찾을 수 없습니다")
+                    // 현재 선택된 프로젝트에 추가
+                    guard var project = selectedProject else {
+                        print("⚠️ 선택된 프로젝트가 없습니다")
                         continue
                     }
 
                     // 같은 제목의 글이 이미 있는지 확인
                     if let existingPostIndex = project.posts.firstIndex(where: { $0.title == title }) {
-                        // 기존 글 업데이트
+                        let existingPost = project.posts[existingPostIndex]
+
+                        // 이미 발행된 글이면 업데이트하지 않음
+                        if existingPost.status == .published {
+                            print("⏭️ 발행된 글은 건너뜀: \(title)")
+                            continue
+                        }
+
+                        // 초안/준비 상태의 기존 글 업데이트
                         print("♻️ 기존 글 업데이트: \(title)")
-                        var existingPost = project.posts[existingPostIndex]
-                        existingPost.content = content
-                        existingPost.updatedAt = Date()
-                        project.posts[existingPostIndex] = existingPost
+                        var updatedPost = existingPost
+                        updatedPost.content = content
+                        updatedPost.updatedAt = Date()
+                        project.posts[existingPostIndex] = updatedPost
                         updateProject(project)
 
                         // 현재 선택된 글이면 업데이트
-                        if selectedPost?.id == existingPost.id {
-                            selectedPost = existingPost
+                        if selectedPost?.id == updatedPost.id {
+                            selectedPost = updatedPost
                         }
                     } else {
                         // 새 글 추가
