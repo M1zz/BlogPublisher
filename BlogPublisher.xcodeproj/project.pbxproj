@@ -7,18 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-<<<<<<< HEAD
-		9C615C252F319E7D00A5BC73 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C615C242F319E7D00A5BC73 /* TemplatesView.swift */; };
-		9C615C262F319E7D00A5BC73 /* ContentToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C615C212F319E7D00A5BC73 /* ContentToolsView.swift */; };
-		9C615C272F319E7D00A5BC73 /* GrowthFeaturesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C615C222F319E7D00A5BC73 /* GrowthFeaturesView.swift */; };
-		9C615C282F319E7D00A5BC73 /* ProductivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C615C232F319E7D00A5BC73 /* ProductivityView.swift */; };
-=======
 		58A871432F32307D0049764A /* GrowthFeaturesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A871402F32307D0049764A /* GrowthFeaturesView.swift */; };
 		58A871442F32307D0049764A /* ProductivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A871412F32307D0049764A /* ProductivityView.swift */; };
 		58A871452F32307D0049764A /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A871422F32307D0049764A /* TemplatesView.swift */; };
 		58A871462F32307D0049764A /* ContentToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A8713F2F32307D0049764A /* ContentToolsView.swift */; };
 		58A871482F3236B40049764A /* Xcode-Update-Hell.md in Resources */ = {isa = PBXBuildFile; fileRef = 58A871472F3236B40049764A /* Xcode-Update-Hell.md */; };
->>>>>>> origin/dev
 		A10000010000000000000001 /* BlogPublisherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000001 /* BlogPublisherApp.swift */; };
 		A10000010000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000002 /* ContentView.swift */; };
 		A10000010000000000000003 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000003 /* Models.swift */; };
@@ -39,18 +32,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-<<<<<<< HEAD
-		9C615C212F319E7D00A5BC73 /* ContentToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentToolsView.swift; sourceTree = "<group>"; };
-		9C615C222F319E7D00A5BC73 /* GrowthFeaturesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthFeaturesView.swift; sourceTree = "<group>"; };
-		9C615C232F319E7D00A5BC73 /* ProductivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductivityView.swift; sourceTree = "<group>"; };
-		9C615C242F319E7D00A5BC73 /* TemplatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatesView.swift; sourceTree = "<group>"; };
-=======
 		58A8713F2F32307D0049764A /* ContentToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentToolsView.swift; sourceTree = "<group>"; };
 		58A871402F32307D0049764A /* GrowthFeaturesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthFeaturesView.swift; sourceTree = "<group>"; };
 		58A871412F32307D0049764A /* ProductivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductivityView.swift; sourceTree = "<group>"; };
 		58A871422F32307D0049764A /* TemplatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatesView.swift; sourceTree = "<group>"; };
 		58A871472F3236B40049764A /* Xcode-Update-Hell.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode-Update-Hell.md"; sourceTree = "<group>"; };
->>>>>>> origin/dev
 		A20000010000000000000001 /* BlogPublisherApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlogPublisherApp.swift; sourceTree = "<group>"; };
 		A20000010000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A20000010000000000000003 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -95,17 +81,10 @@
 		A40000010000000000000002 /* BlogPublisher */ = {
 			isa = PBXGroup;
 			children = (
-<<<<<<< HEAD
-				9C615C212F319E7D00A5BC73 /* ContentToolsView.swift */,
-				9C615C222F319E7D00A5BC73 /* GrowthFeaturesView.swift */,
-				9C615C232F319E7D00A5BC73 /* ProductivityView.swift */,
-				9C615C242F319E7D00A5BC73 /* TemplatesView.swift */,
-=======
 				58A8713F2F32307D0049764A /* ContentToolsView.swift */,
 				58A871402F32307D0049764A /* GrowthFeaturesView.swift */,
 				58A871412F32307D0049764A /* ProductivityView.swift */,
 				58A871422F32307D0049764A /* TemplatesView.swift */,
->>>>>>> origin/dev
 				A20000010000000000000001 /* BlogPublisherApp.swift */,
 				A20000010000000000000002 /* ContentView.swift */,
 				A20000010000000000000003 /* Models.swift */,
@@ -228,10 +207,6 @@
 				A10000010000000000000004 /* AppState.swift in Sources */,
 				A10000010000000000000005 /* ClaudeService.swift in Sources */,
 				A10000010000000000000006 /* PlatformService.swift in Sources */,
-				9C615C252F319E7D00A5BC73 /* TemplatesView.swift in Sources */,
-				9C615C262F319E7D00A5BC73 /* ContentToolsView.swift in Sources */,
-				9C615C272F319E7D00A5BC73 /* GrowthFeaturesView.swift in Sources */,
-				9C615C282F319E7D00A5BC73 /* ProductivityView.swift in Sources */,
 				A10000010000000000000007 /* StorageService.swift in Sources */,
 				A10000010000000000000008 /* SidebarView.swift in Sources */,
 				A10000010000000000000009 /* PostListView.swift in Sources */,
